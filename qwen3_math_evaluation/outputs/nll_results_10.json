@@ -1,0 +1,4 @@
+{
+  "num_experts_per_tok": 10,
+  "mean_nll": 0.08099631714312426
+}
