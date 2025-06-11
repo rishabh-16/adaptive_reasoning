@@ -1,0 +1,91 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+distutils.log
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Output and data directories
+qwen3_math_evaluation/outputs/
+qwen3_math_evaluation/data/
+
+# SQLite and report files
+qwen3_math_evaluation/report.sqlite
+qwen3_math_evaluation/report.nsys-rep
+
+# Model and cache directories
+qwen3_math_evaluation/outputs/fsx-project/
+
+# Ignore latex2sympy build artifacts
+qwen3_math_evaluation/latex2sympy/*.egg-info/
+qwen3_math_evaluation/latex2sympy/gen/
+qwen3_math_evaluation/latex2sympy/__pycache__/
+qwen3_math_evaluation/latex2sympy/gen/__pycache__/
+
+# Ignore large model directories
+qwen3_math_evaluation/outputs/Qwen/
+
+# Ignore notebook outputs
+nbs/*.ipynb
+
+# Ignore any other large or generated files
+*.log
+*.tmp
+*.bak 
