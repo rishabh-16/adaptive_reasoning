@@ -81,3 +81,4 @@ qwen3_math_evaluation/latex2sympy/gen/__pycache__/
 *.log
 *.tmp
 *.bak 
+*.out

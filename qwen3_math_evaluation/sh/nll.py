@@ -79,7 +79,7 @@ def main():
     parser.add_argument('--gt', type=bool, default=False)
     args = parser.parse_args()
 
-    filename = "/home/rishabhtiwari/repos/01_META_REASONING_MOE/RSD/external/qwen25_math_evaluation/outputs/fsx-project/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B/math_eval/math500/test_qwen25-math-cot_-1_seed0_t0.0_top_k8_enable_thinkingFalse_s0_e-1.jsonl"
+    filename = "/home/rishabhtiwari/repos/01_META_REASONING_MOE/qwen3_math_evaluation/outputs/fsx-project/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B/math_eval/math500/test_qwen25-math-cot_-1_seed0_t0.0_top_k8_enable_thinkingFalse_s0_e-1.jsonl"
     
     jsonl_data = load_jsonl(filename)
     tokenizer = AutoTokenizer.from_pretrained("/fsx-project/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B")
@@ -89,7 +89,7 @@ def main():
     mean_nll = evaluate_model(prompts_with_preds, lengths_of_questions, args.num_experts_per_tok)
     result = {"num_experts_per_tok": args.num_experts_per_tok, "mean_nll": float(mean_nll)}
     print(result)
-    output_file = f"/home/rishabhtiwari/repos/01_META_REASONING_MOE/RSD/external/qwen25_math_evaluation/outputs/nll_results_{args.num_experts_per_tok}_gt_{args.gt}.json"
+    output_file = f"/home/rishabhtiwari/repos/01_META_REASONING_MOE/qwen3_math_evaluation/outputs/nll_results_{args.num_experts_per_tok}_gt_{args.gt}.json"
     with open(output_file, "w") as f:
         json.dump(result, f, indent=2)
 
