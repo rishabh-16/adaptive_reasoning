@@ -3,9 +3,9 @@
 TOP_K="10 12 14 16 20 22 24"
 
 # Distribute jobs across 8 GPUs
-gpu=0
+
 for k in $TOP_K; do
-    echo "Running evaluation with top_k=$k on GPU $gpu"
+    echo "Running evaluation with top_k=$k"
 
     export CUDA_VISIBLE_DEVICES="0,1,2,3"
     TOKENIZERS_PARALLELISM=false \

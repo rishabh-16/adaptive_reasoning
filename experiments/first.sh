@@ -10,7 +10,6 @@ for k in $TOP_K; do
     echo "Running evaluation with top_k=$k"
     
     srun --ntasks=1 --gpus-per-task=$1 \
-         --export=ALL,CUDA_VISIBLE_DEVICES=0 \
          bash -c "TOKENIZERS_PARALLELISM=false \
          python3 -u qwen3_math_evaluation/sh/nll.py --num_experts_per_tok $k --gt True" &
 done
