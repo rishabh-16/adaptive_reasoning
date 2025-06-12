@@ -1,17 +1,16 @@
 #!/bin/bash
-#SBATCH --job-name=first
-#SBATCH --ntasks=4
-#SBATCH --gpus-per-task=$1
+#SBATCH --job-name=nll
+#SBATCH --array=0-3
+#SBATCH --gpus=2
 
-TOP_K="1 2 4 6 8 10 12 14 16 20 22 24"
+TOP_K_VALUES=(1 2 4 8)
+TOP_K=${TOP_K_VALUES[$SLURM_ARRAY_TASK_ID]}
 
-# Run evaluations in parallel using srun
-for k in $TOP_K; do
-    echo "Running evaluation with top_k=$k"
-    
-    srun --ntasks=1 --gpus-per-task=$1 \
-         bash -c "TOKENIZERS_PARALLELISM=false \
-         python3 -u qwen3_math_evaluation/sh/nll.py --num_experts_per_tok $k --gt True" &
-done
+echo "Running SLURM_ARRAY_TASK_ID=$SLURM_ARRAY_TASK_ID with top_k=$TOP_K"
+echo "CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
+echo "Assigned GPUs:"
+nvidia-smi --query-gpu=index,uuid --format=csv,noheader
+echo "--------------------------------"
 
-wait
+
+TOKENIZERS_PARALLELISM=false python3 -u qwen3_math_evaluation/sh/nll.py --num_experts_per_tok $TOP_K --gt True

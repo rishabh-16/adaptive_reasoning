@@ -53,7 +53,7 @@ def get_prompts(jsonl_data, tokenizer, gt=False):
 def evaluate_model(prompts_with_preds, lengths_of_questions, num_experts_per_tok):
     llm = LLM(
         model="/fsx-project/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B",
-        tensor_parallel_size=4,
+        tensor_parallel_size=2,
         pipeline_parallel_size=1,
         trust_remote_code=True,
         hf_overrides={"num_experts_per_tok": num_experts_per_tok},
