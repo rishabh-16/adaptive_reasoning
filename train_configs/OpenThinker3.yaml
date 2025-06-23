@@ -1,0 +1,51 @@
+# ALLOW_EXTRA_ARGS=1 llamafactory-cli train ../train_configs/OpenThinker3.yaml
+
+### model
+model_name_or_path: '/fsx-project/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B'
+# model_name_or_path: '/fsx-project/rishabhtiwari/hf_cache/Qwen--Qwen3-0.6B'
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+deepspeed: '../train_configs/zero3.json'  
+enable_liger_kernel: true
+packing: true
+neat_packing: true
+cache_dir: '/fsx-project/rishabhtiwari/hf_cache'
+
+messages: conversations
+formatting: sharegpt
+role_tag: from
+content_tag: value
+user_tag: human
+assistant_tag: gpt
+
+### dataset
+dataset: 'open_thoughts_3'
+template: qwen3
+# cutoff_len: 16384
+cutoff_len: 2048
+overwrite_cache: true
+max_samples: 1000
+preprocessing_num_workers: 4
+dataloader_persistent_workers: true
+dataloader_pin_memory: true
+dataloader_num_workers: 16
+
+### output
+output_dir: debug/OpenThinker3-30B
+logging_steps: 1
+save_steps: 100
+plot_loss: true
+
+### train
+# global_batch_size: 512
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 2
+learning_rate: 8.0e-5
+num_train_epochs: 5.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000

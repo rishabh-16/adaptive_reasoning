@@ -1,0 +1,55 @@
+# Multi-node training configuration for OpenThinker3
+# ALLOW_EXTRA_ARGS=1 llamafactory-cli train ../train_configs/OpenThinker3_multi_node.yaml
+
+### model
+model_name_or_path: '/fsx-project/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B'
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+deepspeed: '../train_configs/zero3_multi_node.json'  
+enable_liger_kernel: true
+packing: true
+neat_packing: true
+cache_dir: '/fsx-project/rishabhtiwari/hf_cache'
+
+messages: conversations
+formatting: sharegpt
+role_tag: from
+content_tag: value
+user_tag: human
+assistant_tag: gpt
+
+### dataset
+dataset: 'open_thoughts_3'
+template: qwen3
+cutoff_len: 16384
+overwrite_cache: true
+max_samples: 1000
+preprocessing_num_workers: 4
+dataloader_persistent_workers: true
+dataloader_pin_memory: true
+dataloader_num_workers: 4
+
+### output
+output_dir: debug/OpenThinker3-30B-multi
+logging_steps: 1
+save_steps: 100
+plot_loss: true
+
+### train
+# For multi-node training, you may want to adjust these based on total GPUs
+per_device_train_batch_size: 1  # Reduced for multi-node stability
+gradient_accumulation_steps: 2   # Increased to maintain effective batch size
+learning_rate: 8.0e-5
+num_train_epochs: 5.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+
+# Multi-node specific settings
+ddp_backend: nccl
+ddp_find_unused_parameters: false
+ddp_bucket_cap_mb: 25 
