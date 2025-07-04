@@ -25,4 +25,4 @@ export ALLOW_EXTRA_ARGS=1
 
 
 cd /home/rishabhtiwari/repos/01_META_REASONING_MOE/LLaMA-Factory/
-llamafactory-cli train ../train_configs/OpenThinker3.yaml --output_dir ../experiments/01_training/saves/OpenThinker3-30B
+llamafactory-cli train ../train_configs/OpenThinker3_debug.yaml --output_dir ../experiments/01_training/saves/OpenThinker3-30B

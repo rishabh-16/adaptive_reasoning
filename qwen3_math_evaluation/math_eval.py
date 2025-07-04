@@ -42,6 +42,7 @@ def parse_args():
     parser.add_argument("--num_shots", type=int, default=0)
     parser.add_argument("--enable_thinking", type=bool, default=False)
     parser.add_argument("--top_k", type=int, default=8)
+    parser.add_argument("--thinking_budget", type=int, default=-1)
     parser.add_argument(
         "--apply_chat_template",
         action="store_true",
@@ -182,6 +183,8 @@ def main(llm, tokenizer, data_name, args):
         gt_cot, gt_ans = parse_ground_truth(example, data_name)
         example["gt_ans"] = gt_ans
         full_prompt = construct_prompt(example, data_name, args)
+        if args.thinking_budget == 0:
+            full_prompt+="<think>\n\n</think>\n\n"
 
         if idx == args.start:
             print(full_prompt)
@@ -261,6 +264,33 @@ def main(llm, tokenizer, data_name, args):
         # get all outputs
         prompts = [item[1] for item in current_prompts]
         if args.use_vllm:
+            if args.thinking_budget > 0:
+                outputs = llm.generate(
+                    prompts,
+                    SamplingParams(
+                        temperature=args.temperature,
+                        top_p=args.top_p,
+                        max_tokens=args.thinking_budget,
+                        n=1,
+                        stop=["</think>"],
+                        stop_token_ids=(
+                            [151645, 151643]
+                            if "qwen2" in args.model_name_or_path.lower() or "qwen3" in args.model_name_or_path.lower() or "openthinker" in args.model_name_or_path.lower()
+                            else None
+                        ),
+                    ),
+                )
+                outputs = sorted(
+                    outputs, key=lambda x: int(x.request_id)
+                )  # sort outputs by request_id
+                # Check stop reason and add missing </think> if needed
+                thinking_outputs = [output.outputs[0].text for output in outputs]
+                for i, output in enumerate(thinking_outputs):
+                    if not output.endswith("</think>"):
+                        thinking_outputs[i] = output + "\nConsidering the limited time by the user, I have to give the solution based on the thinking directly now.\n</think>"
+                # Update prompts with thinking outputs for the next generation
+                prompts = [prompt + thinking_output for prompt, thinking_output in zip(prompts, thinking_outputs)]
+
             outputs = llm.generate(
                 prompts,
                 SamplingParams(
@@ -271,7 +301,7 @@ def main(llm, tokenizer, data_name, args):
                     stop=stop_words,
                     stop_token_ids=(
                         [151645, 151643]
-                        if "qwen2" in args.model_name_or_path.lower() or "qwen3" in args.model_name_or_path.lower()
+                        if "qwen2" in args.model_name_or_path.lower() or "qwen3" in args.model_name_or_path.lower() or "openthinker" in args.model_name_or_path.lower()
                         else None
                     ),
                 ),

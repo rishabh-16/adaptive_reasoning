@@ -33,9 +33,11 @@ chmod +x experiments/$EXPERIMENT/run_multi_node.sh
 # Submit the job with multi-node configuration
 sbatch \
     --account=genai_interns \
-    --qos=genai_interns \
+    --qos=lowest \
     --job-name=${EXPERIMENT}_multi \
-    --gpus=$TOTAL_GPUS \
+    --nodes=$NODES \
+    --ntasks-per-node=1 \
+    --gpus-per-node=$GPUS_PER_NODE \
     experiments/$EXPERIMENT/run_multi_node.sh
 
 echo "Multi-node job submitted!"
