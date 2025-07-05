@@ -73,8 +73,8 @@ def quantize_kv(args, model):
                     # Call original forward but intercept to quantize keys after RoPE
                     import types
                     # todo: more specific for qwen3
-                    from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
-                    
+                    # from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
+                    from transformers.models.qwen3.modeling_qwen3 import apply_rotary_pos_emb
                     # Store original apply_rotary_pos_emb
                     original_rope = apply_rotary_pos_emb
                     
@@ -92,15 +92,19 @@ def quantize_kv(args, model):
                     
                     # Temporarily replace the function
                     # todo: more specific for qwen3
-                    import transformers.models.llama.modeling_llama
-                    transformers.models.llama.modeling_llama.apply_rotary_pos_emb = quantized_rope
-                    
+                    # import transformers.models.llama.modeling_llama
+                    # transformers.models.llama.modeling_llama.apply_rotary_pos_emb = quantized_rope
+                    import transformers.models.qwen3.modeling_qwen3
+                    transformers.models.qwen3.modeling_qwen3.apply_rotary_pos_emb = quantized_rope
+
                     try:
                         # Call original forward
                         result = orig_forward(*args, **kwargs)
                     finally:
                         # Restore original function
-                        transformers.models.llama.modeling_llama.apply_rotary_pos_emb = original_rope
+                        # transformers.models.llama.modeling_llama.apply_rotary_pos_emb = original_rope
+                        import transformers.models.qwen3.modeling_qwen3
+                        transformers.models.qwen3.modeling_qwen3.apply_rotary_pos_emb = original_rope
                     
                     return result
                 
