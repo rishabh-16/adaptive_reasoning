@@ -43,15 +43,15 @@ def parse_args():
     parser.add_argument("--enable_thinking", type=bool, default=False)
     parser.add_argument("--top_k", type=int, default=8)
     parser.add_argument("--thinking_budget", type=int, default=-1)
-    parser.add_argument("--quantize_kv", action="store_true")
-    parser.add_argument("--quantize_model", action="store_true")
+    parser.add_argument("--quantize_kv", type=bool, default=False)
+    parser.add_argument("--quantize_model", type=bool, default=False)
     parser.add_argument(
-        '--wbits', type=int, default=16, choices=[2, 3, 4, 8, 16],
+        '--wbits', type=int, default=2, choices=[2, 3, 4, 8, 16],
         help='#bits to use for weight quantization; use 16 for evaluating base model.'
     )
     parser.add_argument(
-        '--abits', type=int, default=16, choices=[2, 3, 4, 8, 16],
-        help='#bits to use for activationquantization; use 16 for no KV quantization.'
+        '--abits', type=int, default=2, choices=[2, 3, 4, 8, 16],
+        help='#bits to use for activation quantization; use 16 for no KV quantization.'
     )
     parser.add_argument(
         '--groupsize', type=int, default=128,
@@ -94,7 +94,7 @@ def prepare_data(data_name, args):
     # get out_file name
     dt_string = datetime.now().strftime("%m-%d_%H-%M")
     model_name = "/".join(args.model_name_or_path.split("/")[-2:])
-    out_file_prefix = f"{args.split}_{args.prompt_type}_{args.num_test_sample}_seed{args.seed}_t{args.temperature}_top_k{args.top_k}_enable_thinking{args.enable_thinking}"
+    out_file_prefix = f"{args.split}_{args.prompt_type}_{args.num_test_sample}_seed{args.seed}_t{args.temperature}_top_k{args.top_k}_enable_thinking{args.enable_thinking}_quantize_kv{args.quantize_kv}_quantize_model{args.quantize_model}_wbits{args.wbits}_abits{args.abits}_groupsize{args.groupsize}_n_sampling{args.n_sampling}"
     output_dir = args.output_dir
     if not os.path.exists(output_dir):
         output_dir = f"outputs/{output_dir}"

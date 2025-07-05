@@ -635,6 +635,7 @@ def parse_ground_truth(example: Dict[str, Any], data_name):
         "gaokao2024_I",
         "gaokao2024_II",
         "imo2024",
+        "AI-MO/aimo-validation-aime"
     ]:
         gt_cot, gt_ans = None, example["answer"]
     else:

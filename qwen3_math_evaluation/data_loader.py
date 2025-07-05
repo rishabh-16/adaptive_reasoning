@@ -20,6 +20,8 @@ def load_data(data_name, split, data_dir="./data"):
             )
         elif data_name == "gsm8k":
             dataset = load_dataset(data_name, split=split)
+        elif data_name == "AI-MO/aimo-validation-aime":
+            dataset = load_dataset(data_name, split=split)
         elif data_name == "svamp":
             # evaluate on training set + test set
             dataset = load_dataset("ChilleD/SVAMP", split="train")
