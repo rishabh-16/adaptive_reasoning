@@ -194,10 +194,6 @@ def load_hf_lm_and_tokenizer(
                                                      device_map=device_map,
                                                      trust_remote_code=True,
                                                      use_safetensors=use_safetensors)
-        if torch.cuda.is_available():
-            model = model.cuda()
-        if load_in_half:
-            model = model.half()
 
         # add the quantization code here
         from quantization_code.llama import quantize_kv, quantize_model
@@ -207,6 +203,11 @@ def load_hf_lm_and_tokenizer(
         if args.quantize_model:
             print("Quantizing model...")
             quantize_model(args, model)
+
+        if torch.cuda.is_available():
+            model = model.cuda()
+        if load_in_half:
+            model = model.half()
 
     model.eval()
     return model, tokenizer
