@@ -3,8 +3,8 @@ import time
 import torch
 import torch.nn as nn
 
-from modelutils import *
-from quant import *
+from quantization_code.modelutils import *
+from quantization_code.quant import *
 
 def get_llama(model):
     import torch
@@ -20,7 +20,7 @@ def get_llama(model):
 
 
 @torch.no_grad()
-def quantize_kv(model):
+def quantize_kv(args, model):
     dev = model.device
     layers = model.model.layers
 
@@ -72,6 +72,7 @@ def quantize_kv(model):
                 def key_quantized_forward(self, *args, **kwargs):
                     # Call original forward but intercept to quantize keys after RoPE
                     import types
+                    # todo: more specific for qwen3
                     from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
                     
                     # Store original apply_rotary_pos_emb
@@ -90,6 +91,7 @@ def quantize_kv(model):
                         return q_rope, k_rope
                     
                     # Temporarily replace the function
+                    # todo: more specific for qwen3
                     import transformers.models.llama.modeling_llama
                     transformers.models.llama.modeling_llama.apply_rotary_pos_emb = quantized_rope
                     
@@ -109,7 +111,7 @@ def quantize_kv(model):
             attn_module.forward = create_key_quantized_forward(original_forward, quantizer).__get__(attn_module, type(attn_module))
 
 @torch.no_grad()
-def quantize_model(model):
+def quantize_model(args, model):
     dev = model.device
     layers = model.model.layers
 
@@ -244,15 +246,17 @@ if __name__ == '__main__':
     model = get_llama(args.model)
     model.eval()
 
+    # todo: apply these two functions
+    # initial model: Qwen3
     print('Quantizing KV cache...')
-    if args.abits < 16:
+    if args.abits < 16: # activation quantization
         tick = time.time()
-        quantize_kv(model)
+        quantize_kv(args, model)
 
     print('Quantizing Model...')
-    if args.wbits < 16:
+    if args.wbits < 16: # weight quantization
         tick = time.time()
-        quantize_model(model)
+        quantize_model(args, model)
 
     datasets = ['wikitext2']
     for dataset in datasets:

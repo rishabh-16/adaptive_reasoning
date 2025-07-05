@@ -147,6 +147,7 @@ def load_hf_lm_and_tokenizer(
         use_fast_tokenizer=False,
         padding_side="left",
         use_safetensors=False,
+        args=None,
     ):
     import torch 
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -187,6 +188,7 @@ def load_hf_lm_and_tokenizer(
     else:
         # return "", tokenizer
         # defaul load in float16
+        print(f"Loading model {model_name_or_path} in float16")
         model = AutoModelForCausalLM.from_pretrained(model_name_or_path,
                                                      torch_dtype=torch.float16,
                                                      device_map=device_map,
@@ -196,6 +198,16 @@ def load_hf_lm_and_tokenizer(
             model = model.cuda()
         if load_in_half:
             model = model.half()
+
+        # add the quantization code here
+        from quantization_code.llama import quantize_kv, quantize_model
+        if args.quantize_kv:
+            print("Quantizing KV cache...")
+            quantize_kv(args, model)
+        if args.quantize_model:
+            print("Quantizing model...")
+            quantize_model(args, model)
+
     model.eval()
     return model, tokenizer
 

@@ -1,8 +1,8 @@
 # file used to compute inference costs
 def get_cost(
         model, 
-        num_input_tokens, 
-        num_output_tokens, # assume this is a list of num tokens for each output
+        num_input_tokens, # number of tokens for the prompt
+        num_output_tokens, # assume this is a list of num tokens for each output | # total number of output tokens
         weight_precision,
         activation_precision,
         groupsize,

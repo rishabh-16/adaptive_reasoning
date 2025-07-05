@@ -84,3 +84,5 @@ qwen3_math_evaluation/latex2sympy/gen/__pycache__/
 *.tmp
 *.bak 
 *.out
+
+adap-reason/

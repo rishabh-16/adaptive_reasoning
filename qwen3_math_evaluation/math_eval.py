@@ -43,6 +43,20 @@ def parse_args():
     parser.add_argument("--enable_thinking", type=bool, default=False)
     parser.add_argument("--top_k", type=int, default=8)
     parser.add_argument("--thinking_budget", type=int, default=-1)
+    parser.add_argument("--quantize_kv", action="store_true")
+    parser.add_argument("--quantize_model", action="store_true")
+    parser.add_argument(
+        '--wbits', type=int, default=16, choices=[2, 3, 4, 8, 16],
+        help='#bits to use for weight quantization; use 16 for evaluating base model.'
+    )
+    parser.add_argument(
+        '--abits', type=int, default=16, choices=[2, 3, 4, 8, 16],
+        help='#bits to use for activationquantization; use 16 for no KV quantization.'
+    )
+    parser.add_argument(
+        '--groupsize', type=int, default=128,
+        help='Groupsize to use for quantization; default uses full row.'
+    )
     parser.add_argument(
         "--apply_chat_template",
         action="store_true",
@@ -130,6 +144,7 @@ def setup(args):
             load_in_half=True,
             use_fast_tokenizer=True,
             use_safetensors=args.use_safetensors,
+            args=args,
         )
 
     # infer & eval
