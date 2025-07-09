@@ -329,6 +329,7 @@ def main(llm, tokenizer, data_name, args):
             )  # sort outputs by request_id
             outputs = [output.outputs[0].text for output in outputs]
         else:
+            # todo: when thinking is enabled, use the logic from the vllm code: stop_token_ids
             outputs = generate_completions(
                 model=llm,
                 tokenizer=tokenizer,

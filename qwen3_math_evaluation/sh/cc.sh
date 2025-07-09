@@ -4,16 +4,15 @@ PROMPT_TYPE="qwen25-math-cot"
 MODEL_NAME_OR_PATH="Qwen/Qwen3-8B"
 ENABLE_THINKING="false"
 TOP_K=100
-OUTPUT_DIR="adapt_reason/math_eval"
-SPLIT="test"
+OUTPUT_DIR="adapt_reason_costs/math_eval"
+SPLIT="train"
 NUM_TEST_SAMPLE=-1
 
 # DATA_NAME="gsm8k,math,svamp,asdiv,mawps,carp_en,tabmwp,minerva_math,gaokao2023en,olympiadbench,college_math"
-# DATA_NAME="AI-MO/aimo-validation-aime"
-DATA_NAME="math500"
+DATA_NAME="AI-MO/aimo-validation-aime"
 
-QUANTIZE_MODEL=true
-QUANTIZE_KV=false
+QUANTIZE_MODEL=false
+QUANTIZE_KV=true
 BATCH_SIZE=16
 
 if [ "${ENABLE_THINKING}" = "true" ]; then
@@ -48,7 +47,7 @@ if [ "${QUANTIZE_MODEL}" = "true" ]; then
             echo "N_SAMPLING: ${N_SAMPLING}, WBITS: ${WBITS}, ABITS: ${ABITS}, GROUPSIZE: 128"
 
             TOKENIZERS_PARALLELISM=false \
-            CUDA_VISIBLE_DEVICES=0 python3 -u math_eval.py \
+            CUDA_VISIBLE_DEVICES=0 python3 -u compute_cost.py \
                 ${QUANTIZE_MODEL_FLAG} \
                 ${QUANTIZE_KV_FLAG} \
                 --model_name_or_path ${MODEL_NAME_OR_PATH} \
@@ -84,7 +83,7 @@ else
             echo "N_SAMPLING: ${N_SAMPLING}, WBITS: ${WBITS}, ABITS: ${ABITS}, GROUPSIZE: 128"
 
             TOKENIZERS_PARALLELISM=false \
-            CUDA_VISIBLE_DEVICES=1 python3 -u math_eval.py \
+            CUDA_VISIBLE_DEVICES=1 python3 -u compute_cost.py \
                 ${QUANTIZE_MODEL_FLAG} \
                 ${QUANTIZE_KV_FLAG} \
                 --model_name_or_path ${MODEL_NAME_OR_PATH} \

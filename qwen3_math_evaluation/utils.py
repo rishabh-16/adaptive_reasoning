@@ -216,6 +216,7 @@ def construct_prompt(example, data_name, args):
         prompt_temp[1],
         prompt_temp[2],
     )
+    # todo; come back to this when enabling thinking
     if args.enable_thinking == False and ("qwen3" in args.model_name_or_path.lower() or "openthinker" in args.model_name_or_path.lower()):
         input_template += "<think>\n\n</think>\n\n"
     if args.prompt_type == "qwen25-math-cot":

@@ -16,14 +16,15 @@ def get_cost(
     head_dim = model.config.hidden_size // model.config.num_attention_heads
 
     # get num_bytes_per_param (assume asymmetric quant)
+    # get num_bytes_per_param (assume asymmetric quant)
     if weight_precision == 16:
         bytes_per_weight = 2
     else:
-        bytes_per_weight = (groupsize * weight_precision + 2*16) / groupsize
+        bytes_per_weight = ((groupsize * weight_precision + 2*16) / groupsize) / 8
     if activation_precision == 16:  
         bytes_per_activation = 2
     else:
-        bytes_per_activation = (groupsize * activation_precision + 2*16) / groupsize
+        bytes_per_activation = ((groupsize * activation_precision + 2*16) / groupsize) / 8
 
     # get model size in bytes
     layer_size = 4 * hidden_dim * hidden_dim + 3 * hidden_dim * intermediate_dim
@@ -36,7 +37,7 @@ def get_cost(
     
     # get KV cache size in bytes
     generation_kv_mem_ops = 0
-    for i in range(num_output_tokens):
+    for i in range(len(num_output_tokens)):
         output_tokens = num_output_tokens[i]
         num_tokens_loaded = output_tokens * (output_tokens+1) / 2
         generation_kv_cache_size_bytes = 2 * num_layers * head_dim * num_kv_heads * num_tokens_loaded * bytes_per_activation
