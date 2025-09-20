@@ -1,11 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name=01_training
-#SBATCH --gpus=8
-#SBATCH --account=genai_interns 
-#SBATCH --qos=genai_interns
+#SBATCH --exclusive
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --gpus-per-node=8
+#SBATCH --account=compact-models 
+#SBATCH --qos=h200_compact-models_high
 #SBATCH --output=experiments/logs/01_training/%x_%j.out
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=128GB
+#SBATCH --mem=400GB
+#SBATCH --time=24:00:00
 
 echo "Running 01_training"
 echo "CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
@@ -22,7 +25,16 @@ export LOCAL_RANK=0
 export TOKENIZERS_PARALLELISM=false  # Avoid tokenizer warnings
 export OMP_NUM_THREADS=16  # Set OpenMP threads to match cpus-per-task
 export ALLOW_EXTRA_ARGS=1
+export TRITON_CACHE_DIR=/tmp/triton_cache_${SLURM_JOB_ID}  # Set Triton cache to local tmp to avoid NFS issues
 
+# Define output directory variable
+output_dir="../experiments/01_training/saved_models/OpenThinker3-30B-instruct-$SLURM_JOB_ID"
 
-cd /home/rishabhtiwari/repos/01_META_REASONING_MOE/LLaMA-Factory/
-llamafactory-cli train ../train_configs/OpenThinker3_debug.yaml --output_dir ../experiments/01_training/saves/OpenThinker3-30B
+cd /home/rishabhtiwari/adaptive_reasoning/LLaMA-Factory/
+llamafactory-cli train ../train_configs/OpenThinker3_instruct.yaml --output_dir "$output_dir"
+
+# Check if output directory exists and is empty, then remove it
+if [ -d "$output_dir" ] && [ -z "$(ls -A "$output_dir")" ]; then
+    echo "Output directory $output_dir is empty, removing it..."
+    rmdir "$output_dir"
+fi

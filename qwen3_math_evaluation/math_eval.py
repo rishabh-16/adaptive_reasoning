@@ -40,7 +40,6 @@ def parse_args():
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--use_safetensors", action="store_true")
     parser.add_argument("--num_shots", type=int, default=0)
-    parser.add_argument("--enable_thinking", type=bool, default=False)
     parser.add_argument("--top_k", type=int, default=8)
     parser.add_argument("--thinking_budget", type=int, default=-1)
     parser.add_argument(
@@ -80,7 +79,7 @@ def prepare_data(data_name, args):
     # get out_file name
     dt_string = datetime.now().strftime("%m-%d_%H-%M")
     model_name = "/".join(args.model_name_or_path.split("/")[-2:])
-    out_file_prefix = f"{args.split}_{args.prompt_type}_{args.num_test_sample}_seed{args.seed}_t{args.temperature}_top_k{args.top_k}_enable_thinking{args.enable_thinking}"
+    out_file_prefix = f"{args.split}_{args.prompt_type}_{args.num_test_sample}_seed{args.seed}_t{args.temperature}_top_k{args.top_k}"
     output_dir = args.output_dir
     if not os.path.exists(output_dir):
         output_dir = f"outputs/{output_dir}"
@@ -265,7 +264,7 @@ def main(llm, tokenizer, data_name, args):
         prompts = [item[1] for item in current_prompts]
         if args.use_vllm:
             if args.thinking_budget > 0:
-                outputs = llm.generate(
+                thinking_outputs = llm.generate(
                     prompts,
                     SamplingParams(
                         temperature=args.temperature,
@@ -278,17 +277,20 @@ def main(llm, tokenizer, data_name, args):
                             if "qwen2" in args.model_name_or_path.lower() or "qwen3" in args.model_name_or_path.lower() or "openthinker" in args.model_name_or_path.lower()
                             else None
                         ),
+                        include_stop_str_in_output=True,
                     ),
                 )
-                outputs = sorted(
-                    outputs, key=lambda x: int(x.request_id)
+
+                thinking_outputs = sorted(
+                    thinking_outputs, key=lambda x: int(x.request_id)
                 )  # sort outputs by request_id
                 # Check stop reason and add missing </think> if needed
-                thinking_outputs = [output.outputs[0].text for output in outputs]
+                thinking_outputs = [output.outputs[0].text for output in thinking_outputs]
                 for i, output in enumerate(thinking_outputs):
                     if not output.endswith("</think>"):
                         thinking_outputs[i] = output + "\nConsidering the limited time by the user, I have to give the solution based on the thinking directly now.\n</think>"
                 # Update prompts with thinking outputs for the next generation
+                import IPython; IPython.embed()
                 prompts = [prompt + thinking_output for prompt, thinking_output in zip(prompts, thinking_outputs)]
 
             outputs = llm.generate(
@@ -310,7 +312,10 @@ def main(llm, tokenizer, data_name, args):
             outputs = sorted(
                 outputs, key=lambda x: int(x.request_id)
             )  # sort outputs by request_id
-            outputs = [output.outputs[0].text for output in outputs]
+            if args.thinking_budget > 0:
+                outputs = [thinking_output + output.outputs[0].text for thinking_output, output in zip(thinking_outputs, outputs)]
+            else:
+                outputs = [output.outputs[0].text for output in outputs]
         else:
             outputs = generate_completions(
                 model=llm,

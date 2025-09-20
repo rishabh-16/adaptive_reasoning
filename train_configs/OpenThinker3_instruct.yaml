@@ -1,8 +1,7 @@
 # ALLOW_EXTRA_ARGS=1 llamafactory-cli train ../train_configs/OpenThinker3.yaml
 
 ### model
-model_name_or_path: '/home/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B'
-train_from_scratch: true
+model_name_or_path: '/home/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B-Base'
 # model_name_or_path: '/fsx-project/rishabhtiwari/hf_cache/Qwen--Qwen3-0.6B'
 
 ### method
@@ -26,15 +25,15 @@ assistant_tag: gpt
 dataset: 'open_thoughts_3'
 template: qwen3
 cutoff_len: 16384
-overwrite_cache: false
-max_samples: 100000
+overwrite_cache: true
+max_samples: 1200000
 preprocessing_num_workers: 32
 dataloader_persistent_workers: true
 dataloader_pin_memory: true
 dataloader_num_workers: 16
 
 ### output
-output_dir: debug/OpenThinker3-30B
+output_dir: /home/rishabhtiwari/adaptive_reasoning/01_training/saved_models/OpenThinker3-30B
 logging_steps: 1
 save_steps: 100
 plot_loss: true

@@ -1,3 +1,1 @@
-- Evaluating checkpoints on aime24
-- thinking=true
-- budget=32k
+- Evaluating checkpoints on math500

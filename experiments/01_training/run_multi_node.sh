@@ -1,13 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name=01_training_multi
+#SBATCH --exclusive
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=8
-#SBATCH --account=genai_interns 
-#SBATCH --qos=genai_interns
+#SBATCH --account=compact-models 
+#SBATCH --qos=h200_compact-models_high
 #SBATCH --output=experiments/01_training/logs/%x_%j.out
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=256GB
+#SBATCH --mem=400GB
+#SBATCH --time=72:00:00
 
 echo "Nodes: $SLURM_JOB_NODELIST"
 echo "Total tasks: $SLURM_NTASKS"
@@ -49,6 +50,8 @@ export NCCL_DEBUG_SUBSYS=INIT,ENV
 export NCCL_NET_GDR_LEVEL=2
 export NCCL_IB_DISABLE=0
 export NCCL_ASYNC_ERROR_HANDLING=1
+export TRITON_CACHE_DIR=/tmp/triton_cache_${SLURM_JOB_ID}  # Set Triton cache to local tmp to avoid NFS issues
+
 
 # export NCCL_DEBUG=INFO
 # export NCCL_IB_DISABLE=0
@@ -69,7 +72,10 @@ echo "NODE_RANK: $NODE_RANK"
 # echo "LOCAL_RANK: $LOCAL_RANK"
 # echo "--------------------------------"
 
-cd /home/rishabhtiwari/repos/01_META_REASONING_MOE/LLaMA-Factory/
+# Define output directory variable
+output_dir="../experiments/01_training/saved_models/OpenThinker3-30B-base-$SLURM_JOB_ID"
+
+cd /home/rishabhtiwari/adaptive_reasoning/LLaMA-Factory/
 
 # Run the training command with multi-node configuration
 # srun --export=ALL echo "I am node $SLURM_NODEID of $SLURM_NNODES"
@@ -77,12 +83,20 @@ cd /home/rishabhtiwari/repos/01_META_REASONING_MOE/LLaMA-Factory/
 
 
 srun --export=ALL bash -c '
+  output_dir="../experiments/01_training/saved_models/OpenThinker3-30B-base-$SLURM_JOB_ID"
   echo "Node rank: $SLURM_NODEID of $SLURM_NNODES"
   FORCE_TORCHRUN=1 \
   NNODES=$SLURM_NNODES \
   NODE_RANK=$SLURM_NODEID \
   MASTER_ADDR=$MASTER_ADDR \
   MASTER_PORT=$MASTER_PORT \
-  llamafactory-cli train ../train_configs/OpenThinker3_debug.yaml --output_dir ../experiments/01_training/saves/OpenThinker3-30B-multi
+  llamafactory-cli train ../train_configs/OpenThinker3_base.yaml output_dir=$output_dir
 '
 
+# Check if output directory exists and is empty, then remove it (only on master node)
+if [ "$SLURM_NODEID" -eq 0 ]; then
+    if [ -d "$output_dir" ] && [ -z "$(ls -A "$output_dir")" ]; then
+        echo "Output directory $output_dir is empty, removing it..."
+        rmdir "$output_dir"
+    fi
+fi

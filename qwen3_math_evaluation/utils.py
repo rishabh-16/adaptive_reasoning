@@ -216,8 +216,7 @@ def construct_prompt(example, data_name, args):
         prompt_temp[1],
         prompt_temp[2],
     )
-    if args.enable_thinking == False and ("qwen3" in args.model_name_or_path.lower() or "openthinker" in args.model_name_or_path.lower()):
-        input_template += "<think>\n\n</think>\n\n"
+
     if args.prompt_type == "qwen25-math-cot":
         # Hotfix to support putting all demos into a single turn
         demo_prompt = splitter.join([q + "\n" + a for q, a in demos])

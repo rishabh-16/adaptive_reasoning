@@ -32,8 +32,6 @@ chmod +x experiments/$EXPERIMENT/run_multi_node.sh
 
 # Submit the job with multi-node configuration
 sbatch \
-    --account=genai_interns \
-    --qos=lowest \
     --job-name=${EXPERIMENT}_multi \
     --nodes=$NODES \
     --ntasks-per-node=1 \
