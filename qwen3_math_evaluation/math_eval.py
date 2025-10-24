@@ -48,6 +48,8 @@ def parse_args():
         help="Apply chat template to prompt.",
     )
     parser.add_argument("--pipeline_parallel_size", type=int, default=1)
+    parser.add_argument("--tensor_parallel_size", type=int, default=None, help="Tensor parallel size for vLLM. If not specified, calculated as num_gpus // pipeline_parallel_size.")
+    parser.add_argument("--max_model_len", type=int, default=None, help="Maximum model length for vLLM. If not specified, uses model default.")
     parser.add_argument(
         "--adapt_few_shot",
         action="store_true",
@@ -111,12 +113,21 @@ def setup(args):
     # load model
     available_gpus = os.environ["CUDA_VISIBLE_DEVICES"].split(",")
     if args.use_vllm:
+        # Determine tensor parallel size
+        if args.tensor_parallel_size is not None:
+            tensor_parallel_size = args.tensor_parallel_size
+        else:
+            tensor_parallel_size = len(available_gpus) // args.pipeline_parallel_size
+        
         llm = LLM(
             model=args.model_name_or_path,
-            tensor_parallel_size=len(available_gpus) // args.pipeline_parallel_size,
+            tensor_parallel_size=tensor_parallel_size,
             pipeline_parallel_size=args.pipeline_parallel_size,
             trust_remote_code=True,
             hf_overrides={"num_experts_per_tok": args.top_k},
+            gpu_memory_utilization=0.8,  # Use more GPU memory for larger batches
+            # max_num_batched_tokens=8192,   # Increase batch size for throughput
+            enable_prefix_caching=False,     # Cache common prefixes
         )
         tokenizer = None
         if args.apply_chat_template:
@@ -135,6 +146,14 @@ def setup(args):
     data_list = args.data_names.split(",")
     results = []
     for data_name in data_list:
+        # if data_name == "aime25":
+        #     for seed in range(32):
+        #         args.seed = seed
+        #         print(f"Running with seed {args.seed}")
+        #         set_seed(args.seed)
+        #         llm.reset_prefix_cache()
+        #         results.append(main(llm, tokenizer, data_name, args))
+        # else:
         results.append(main(llm, tokenizer, data_name, args))
 
     # add "avg" result to data_list and results
@@ -270,11 +289,12 @@ def main(llm, tokenizer, data_name, args):
                         temperature=args.temperature,
                         top_p=args.top_p,
                         max_tokens=args.thinking_budget,
+                        # repetition_penalty=1.05,
                         n=1,
                         stop=["</think>"],
                         stop_token_ids=(
                             [151645, 151643]
-                            if "qwen2" in args.model_name_or_path.lower() or "qwen3" in args.model_name_or_path.lower() or "openthinker" in args.model_name_or_path.lower()
+                            if "qwen2" in args.model_name_or_path.lower() or "qwen3" in args.model_name_or_path.lower() or "openthinker3-30b" in args.model_name_or_path.lower()
                             else None
                         ),
                         include_stop_str_in_output=True,
@@ -290,7 +310,7 @@ def main(llm, tokenizer, data_name, args):
                     if not output.endswith("</think>"):
                         thinking_outputs[i] = output + "\nConsidering the limited time by the user, I have to give the solution based on the thinking directly now.\n</think>"
                 # Update prompts with thinking outputs for the next generation
-                import IPython; IPython.embed()
+                # import IPython; IPython.embed()
                 prompts = [prompt + thinking_output for prompt, thinking_output in zip(prompts, thinking_outputs)]
 
             outputs = llm.generate(
@@ -303,9 +323,10 @@ def main(llm, tokenizer, data_name, args):
                     stop=stop_words,
                     stop_token_ids=(
                         [151645, 151643]
-                        if "qwen2" in args.model_name_or_path.lower() or "qwen3" in args.model_name_or_path.lower() or "openthinker" in args.model_name_or_path.lower()
+                        if "qwen2" in args.model_name_or_path.lower() or "qwen3" in args.model_name_or_path.lower() or "openthinker3-30b" in args.model_name_or_path.lower()
                         else None
                     ),
+                    # repetition_penalty=1.05,
                 ),
             )
 
@@ -317,14 +338,37 @@ def main(llm, tokenizer, data_name, args):
             else:
                 outputs = [output.outputs[0].text for output in outputs]
         else:
-            outputs = generate_completions(
-                model=llm,
-                tokenizer=tokenizer,
-                prompts=prompts,
-                max_new_tokens=args.max_tokens_per_call,
-                batch_size=16,
-                stop_id_sequences=stop_words,
-            )
+            if args.thinking_budget > 0:
+                thinking_outputs = generate_completions(
+                    model=llm,
+                    tokenizer=tokenizer,
+                    prompts=prompts,
+                    max_new_tokens=args.thinking_budget,
+                    batch_size=32,
+                    stop_id_sequences=stop_words + ["</think>"],
+                )
+                for i, output in enumerate(thinking_outputs):
+                    if not output.endswith("</think>"):
+                        thinking_outputs[i] = output + "\nConsidering the limited time by the user, I have to give the solution based on the thinking directly now.\n</think>"
+                prompts = [prompt + thinking_output for prompt, thinking_output in zip(prompts, thinking_outputs)]
+
+                outputs = generate_completions(
+                    model=llm,
+                    tokenizer=tokenizer,
+                    prompts=prompts,
+                    max_new_tokens=args.max_tokens_per_call,
+                    batch_size=32,
+                    stop_id_sequences=stop_words,
+                )
+            else:
+                outputs = generate_completions(
+                    model=llm,
+                    tokenizer=tokenizer,
+                    prompts=prompts,
+                    max_new_tokens=args.max_tokens_per_call,
+                    batch_size=32,
+                    stop_id_sequences=stop_words,
+                )
 
         assert len(outputs) == len(current_prompts)
 

@@ -130,6 +130,7 @@ PROMPT_TEMPLATES = {
         "{output}",
         "\n\n",
     ),
+    "ling": ("<role>HUMAN</role>{input}<role>ASSISTANT</role>", "{output}", "\n\n"),
     "shepherd": ("{input}\n", "{output}", "\n\n\n"),
     "qwen-boxed": (
         "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
@@ -145,8 +146,15 @@ PROMPT_TEMPLATES = {
         "{output}",
         "\n\n",
     ),
+    # "qwen25-math-cot": (
+    #     "<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n"
+    #     "<|im_start|>user\n{input}<|im_end|>\n"
+    #     "<|im_start|>assistant\n",
+    #     "{output}",
+    #     "\n\n",
+    # ),
     "qwen25-math-cot-en": (
-        "<|im_start|>system\nPlease reason step by step, and put your final answer within \\boxed{{}}. You must answer in English.<|im_end|>\n"
+        # "<|im_start|>system\nPlease reason step by step, and put your final answer within \\boxed{{}}. You must answer in English.<|im_end|>\n"
         "<|im_start|>user\n{input}<|im_end|>\n"
         "<|im_start|>assistant\n",
         "{output}",

@@ -1,0 +1,56 @@
+# ALLOW_EXTRA_ARGS=1 llamafactory-cli train ../train_configs/OpenThinker3.yaml
+
+### model
+# model_name_or_path: '/home/rishabhtiwari/hf_cache/Qwen--Qwen1.5-MoE-A2.7B'
+# model_name_or_path: '/home/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B-Base'
+model_name_or_path: '/home/rishabhtiwari/hf_cache/Qwen--Qwen1.5-MoE-A2.7B'
+trust_remote_code: true
+
+# model_name_or_path: '/fsx-project/rishabhtiwari/hf_cache/Qwen--Qwen3-0.6B'
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+deepspeed: '../train_configs/zero3.json'  
+enable_liger_kernel: true
+# packing: true
+# neat_packing: true
+cache_dir: '/home/rishabhtiwari/hf_cache'
+
+# messages: conversations
+# formatting: sharegpt
+# role_tag: from
+# content_tag: value
+# user_tag: human
+# assistant_tag: gpt
+
+### dataset
+dataset: 'numinamath'
+template: qwen
+cutoff_len: 4096
+overwrite_cache: true
+max_samples: 850000
+preprocessing_num_workers: 32
+dataloader_persistent_workers: true
+dataloader_pin_memory: true
+dataloader_num_workers: 16
+tokenized_path: '/checkpoint/compact-models/rishabhtiwari/adaptive_reasoning/01_training/tokenized_data/OpenThinker3-30B-qwen'
+
+### output
+output_dir: /home/rishabhtiwari/adaptive_reasoning/01_training/saved_models/OpenThinker3-30B
+logging_steps: 1
+save_steps: 300
+plot_loss: true
+
+### train
+# global_batch_size: 512
+per_device_train_batch_size: 16
+gradient_accumulation_steps: 1
+learning_rate: 8e-5
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+# average_tokens_across_devices: false  # Fix for inflated loss values

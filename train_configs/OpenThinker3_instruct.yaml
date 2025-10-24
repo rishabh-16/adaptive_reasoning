@@ -11,7 +11,7 @@ finetuning_type: full
 deepspeed: '../train_configs/zero3.json'  
 enable_liger_kernel: true
 packing: true
-neat_packing: false
+neat_packing: true
 cache_dir: '/home/rishabhtiwari/hf_cache'
 
 messages: conversations
@@ -26,16 +26,17 @@ dataset: 'open_thoughts_3'
 template: qwen3
 cutoff_len: 16384
 overwrite_cache: true
-max_samples: 1200000
+max_samples: 850000
 preprocessing_num_workers: 32
 dataloader_persistent_workers: true
 dataloader_pin_memory: true
 dataloader_num_workers: 16
+tokenized_path: '/checkpoint/compact-models/rishabhtiwari/adaptive_reasoning/01_training/tokenized_data/OpenThinker3-30B-qwen3'
 
 ### output
 output_dir: /home/rishabhtiwari/adaptive_reasoning/01_training/saved_models/OpenThinker3-30B
 logging_steps: 1
-save_steps: 100
+save_steps: 300
 plot_loss: true
 
 ### train

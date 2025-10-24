@@ -23,15 +23,32 @@ export WORLD_SIZE=$SLURM_GPUS_ON_NODE
 export RANK=0
 export LOCAL_RANK=0
 export TOKENIZERS_PARALLELISM=false  # Avoid tokenizer warnings
-export OMP_NUM_THREADS=16  # Set OpenMP threads to match cpus-per-task
+export OMP_NUM_THREADS=32  # Set OpenMP threads to match cpus-per-task
 export ALLOW_EXTRA_ARGS=1
 export TRITON_CACHE_DIR=/tmp/triton_cache_${SLURM_JOB_ID}  # Set Triton cache to local tmp to avoid NFS issues
 
+# Activate conda environment
+source ~/.bashrc
+conda activate 01_training
+
+# export CUDA_LAUNCH_BLOCKING=1
+# export TORCH_SHOW_CPP_STACKTRACES=1
+# export NCCL_DEBUG=INFO
+# export NCCL_ASYNC_ERROR_HANDLING=1
 # Define output directory variable
-output_dir="../experiments/01_training/saved_models/OpenThinker3-30B-instruct-$SLURM_JOB_ID"
+output_dir="/checkpoint/compact-models/rishabhtiwari/adaptive_reasoning/experiments/01_training/saved_models/OpenThinker3-30B-qwen3-$SLURM_JOB_ID"
 
 cd /home/rishabhtiwari/adaptive_reasoning/LLaMA-Factory/
-llamafactory-cli train ../train_configs/OpenThinker3_instruct.yaml --output_dir "$output_dir"
+
+# Build the command with optional num_experts_per_tok override
+cmd="llamafactory-cli train ../train_configs/OpenThinker3_qwen3.yaml --output_dir \"$output_dir\""
+if [ -n "$NUM_EXPERTS_PER_TOK" ]; then
+    echo "Overriding num_experts_per_tok to: $NUM_EXPERTS_PER_TOK"
+    cmd="$cmd num_experts_per_tok=$NUM_EXPERTS_PER_TOK"
+fi
+
+echo "Running command: $cmd"
+eval $cmd
 
 # Check if output directory exists and is empty, then remove it
 if [ -d "$output_dir" ] && [ -z "$(ls -A "$output_dir")" ]; then

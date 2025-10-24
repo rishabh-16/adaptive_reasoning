@@ -5,7 +5,6 @@ import torch
 import tqdm
 from transformers import StoppingCriteria, StoppingCriteriaList
 
-
 class KeywordsStoppingCriteria(StoppingCriteria):
     def __init__(self, keywords_str, tokenizer):
         StoppingCriteria.__init__(self)
@@ -187,11 +186,11 @@ def load_hf_lm_and_tokenizer(
     else:
         # return "", tokenizer
         # defaul load in float16
+        # import IPython; IPython.embed()
         model = AutoModelForCausalLM.from_pretrained(model_name_or_path,
                                                      torch_dtype=torch.float16,
                                                      device_map=device_map,
-                                                     trust_remote_code=True,
-                                                     use_safetensors=use_safetensors)
+                                                     trust_remote_code=True)
         if torch.cuda.is_available():
             model = model.cuda()
         if load_in_half:
