@@ -2,10 +2,10 @@
 #SBATCH --job-name=03_evaluation
 #SBATCH --exclusive
 #SBATCH --nodes=1
-#SBATCH --array=0-13
+#SBATCH --array=0-11
 #SBATCH --gpus-per-node=8
-#SBATCH --account=compact-models 
-#SBATCH --qos=h200_lowest
+#SBATCH --account=transformer2
+#SBATCH --qos=h200_comm_shared
 #SBATCH --output=experiments/03_evaluation/logs/%x_%j.out
 #SBATCH --mem=400GB
 #SBATCH --time=24:00:00
@@ -17,13 +17,13 @@
 
 source /home/rishabhtiwari/adaptive_reasoning/experiments/hyperparam_utils.sh
 
-TOP_K_VALUES=(4 6 8 12 14 16 32) 
+TOP_K_VALUES=(4 8 12 14 16 20)
 THINKING_BUDGET_VALUES=(-1)
 # MODEL_NAME_OR_PATH_VALUES=("Qwen3-Qwen3-30B-A3B-Base")
 # MODEL_NAME_OR_PATH_VALUES=("qwen3-1695599" "qwen3-1695805" "qwen3-1676884" "qwen3-1695806" "qwen3-1677711" "qwen3-1695807" "qwen3-1677706")
-MODEL_NAME_OR_PATH_VALUES=("qwen3-1717456")
-DATA_NAME_VALUES=("math500" "aime25")
-CHECKPOINT_NUMBER_VALUES=(416)
+MODEL_NAME_OR_PATH_VALUES=("qwen3-2111685" "qwen3-2111879")
+DATA_NAME_VALUES=("aime25")
+CHECKPOINT_NUMBER_VALUES=(276)
 SEEDS=(0)
 N_SAMPLING=8
 TEMPERATURE=0.7
@@ -47,7 +47,7 @@ CHECKPOINT_NUMBER=${CHECKPOINT_NUMBER_VALUES[${HYPERPARAM_INDICES[4]}]}
 SEED=${SEEDS[${HYPERPARAM_INDICES[5]}]}
 
 # MODEL_FULL_PATH="/checkpoint/compact-models/rishabhtiwari/adaptive_reasoning/experiments/01_training/saved_models/OpenThinker3-${MODEL_NAME_OR_PATH}/checkpoint-${CHECKPOINT_NUMBER}/"
-MODEL_FULL_PATH="/checkpoint/compact-models/rishabhtiwari/adaptive_reasoning/experiments/01_training/saved_models/OpenThinker3-${MODEL_NAME_OR_PATH}"
+MODEL_FULL_PATH="/checkpoint/transformer2/rishabhtiwari/adaptive_reasoning/experiments/01_training/saved_models/OpenThinker3-${MODEL_NAME_OR_PATH}"
 # MODEL_FULL_PATH="/home/rishabhtiwari/hf_cache/Qwen--Qwen3-30B-A3B-Base"
 # MAX_TOKENS_PER_CALL=$((THINKING_BUDGET + 2048))
 MAX_TOKENS_PER_CALL=16000

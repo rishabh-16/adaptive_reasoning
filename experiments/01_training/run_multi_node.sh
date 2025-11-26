@@ -4,8 +4,8 @@
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=8
-#SBATCH --account=compact-models 
-#SBATCH --qos=h200_capabilities_shared
+#SBATCH --account=transformer2
+#SBATCH --qos=h200_comm_shared
 #SBATCH --output=experiments/01_training/logs/%x_%j.out
 #SBATCH --mem=400GB
 #SBATCH --time=72:00:00
@@ -57,7 +57,7 @@ export TRITON_CACHE_DIR=/tmp/triton_cache  # Set Triton cache to local tmp to av
 # export NCCL_IB_DISABLE=0
 # export NCCL_P2P_DISABLE=0
 # export NCCL_BLOCKING_WAIT=1
-# 
+#
 
 # Optional: Set NCCL network interface if needed
 # export NCCL_SOCKET_IFNAME=eth0
@@ -82,7 +82,7 @@ cd /home/rishabhtiwari/adaptive_reasoning/LLaMA-Factory/
 # srun --export=ALL bash -c 'echo "I am node $SLURM_NODEID of $SLURM_NNODES"'
 
 srun --export=ALL bash -c '
-  output_dir="/checkpoint/compact-models/rishabhtiwari/adaptive_reasoning/experiments/01_training/saved_models/OpenThinker3-qwen3-$SLURM_JOB_ID"
+  output_dir="/checkpoint/transformer2/rishabhtiwari/adaptive_reasoning/experiments/01_training/saved_models/OpenThinker3-qwen3-$SLURM_JOB_ID"
   echo "Node rank: $SLURM_NODEID of $SLURM_NNODES"
   echo "Experts per token: $NUM_EXPERTS_PER_TOK"
   cmd="FORCE_TORCHRUN=1 \
@@ -91,7 +91,7 @@ srun --export=ALL bash -c '
   MASTER_ADDR=$MASTER_ADDR \
   MASTER_PORT=$MASTER_PORT \
   llamafactory-cli train ../train_configs/OpenThinker3_qwen3.yaml output_dir=$output_dir"
-  
+
   if [ -n "$NUM_EXPERTS_PER_TOK" ]; then
       echo "Overriding num_experts_per_tok to: $NUM_EXPERTS_PER_TOK"
       cmd="$cmd num_experts_per_tok=$NUM_EXPERTS_PER_TOK"

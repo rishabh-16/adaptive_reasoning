@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=8
-#SBATCH --account=compact-models 
+#SBATCH --account=compact-models
 #SBATCH --qos=h200_compact-models_high
 #SBATCH --output=experiments/logs/01_training/%x_%j.out
 #SBATCH --mem=400GB
@@ -16,6 +16,8 @@ echo "Assigned GPUs:"
 nvidia-smi --query-gpu=index,uuid --format=csv,noheader
 echo "--------------------------------"
 
+# export SLURM_JOB_ID=0
+# export NUM_EXPERTS_PER_TOKEN=8
 export MASTER_ADDR=$(hostname)
 # Dynamic port selection to avoid conflicts
 export MASTER_PORT=$((29500 + $SLURM_JOB_ID % 1000))
@@ -36,7 +38,7 @@ conda activate 01_training
 # export NCCL_DEBUG=INFO
 # export NCCL_ASYNC_ERROR_HANDLING=1
 # Define output directory variable
-output_dir="/checkpoint/compact-models/rishabhtiwari/adaptive_reasoning/experiments/01_training/saved_models/OpenThinker3-30B-qwen3-$SLURM_JOB_ID"
+output_dir="/checkpoint/transformer2/rishabhtiwari/adaptive_reasoning/experiments/01_training/saved_models/OpenThinker3-30B-qwen3-$SLURM_JOB_ID"
 
 cd /home/rishabhtiwari/adaptive_reasoning/LLaMA-Factory/
 

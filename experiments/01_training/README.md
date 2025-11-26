@@ -7,7 +7,7 @@
    conda create -n 01_training python=3.12
    conda activate 01_training
    ```
-   
+
    2. Install the package:
 
 
@@ -30,7 +30,7 @@ File to edit: /home/rishabhtiwari/.conda/envs/01_training/lib/python3.12/site-pa
 - 102664 and 1110609: instruct model 8 nodes, 1.2 million examples, topk=8, output dir in llama factory
 - 1110828: instruct model 8 nodes, 1.2 million examples, topk=16
 
-![Dynamic Training](dynamic.png) 
+![Dynamic Training](dynamic.png)
 1111568: instruct model 8 nodes, 1.2 million examples, topk=[8,12,16,20]
 
 
@@ -68,7 +68,7 @@ self.iteration += 1
 # Ling
 200_000 math subset
 1598405 k=6
-1598456 k=[6,8,10,12] 
+1598456 k=[6,8,10,12]
         available_k = [6, 8, 10, 12]
         top_k = available_k[(self.iteration)%len(available_k)]
         self.iteration += 1
@@ -102,9 +102,8 @@ k=4 1631112
 
 1717456: k=8 more epochs 3 epochs
 
-
-
-
-
+----
+2111685: large batch size 3 epochhs k = 8
+2111879: 3 epcohs k=[4,8,16]
 
 
