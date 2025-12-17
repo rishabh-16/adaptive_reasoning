@@ -17,13 +17,13 @@
 
 source /home/rishabhtiwari/adaptive_reasoning/experiments/hyperparam_utils.sh
 
-TOP_K_VALUES=(4 8 12 14 16 20)
+TOP_K_VALUES=(22 24 26 28 30 32)
 THINKING_BUDGET_VALUES=(-1)
 # MODEL_NAME_OR_PATH_VALUES=("Qwen3-Qwen3-30B-A3B-Base")
 # MODEL_NAME_OR_PATH_VALUES=("qwen3-1695599" "qwen3-1695805" "qwen3-1676884" "qwen3-1695806" "qwen3-1677711" "qwen3-1695807" "qwen3-1677706")
-MODEL_NAME_OR_PATH_VALUES=("qwen3-2111685" "qwen3-2111879")
+MODEL_NAME_OR_PATH_VALUES=("qwen3-2196030" "qwen3-2196031")
 DATA_NAME_VALUES=("aime25")
-CHECKPOINT_NUMBER_VALUES=(276)
+CHECKPOINT_NUMBER_VALUES=(171)
 SEEDS=(0)
 N_SAMPLING=8
 TEMPERATURE=0.7
@@ -59,16 +59,16 @@ echo "Assigned GPUs:"
 nvidia-smi --query-gpu=index,uuid --format=csv,noheader
 echo "--------------------------------"
 
-OUTPUT_DIR="/home/rishabhtiwari/adaptive_reasoning/experiments/03_evaluation/short_runs/${MODEL_NAME_OR_PATH}_checkpoint${CHECKPOINT_NUMBER}_max_tokens_per_call${MAX_TOKENS_PER_CALL}_thinking_budget${THINKING_BUDGET}"
+OUTPUT_DIR="/home/rishabhtiwari/adaptive_reasoning/experiments/03_evaluation/without_system_prompt/${MODEL_NAME_OR_PATH}_checkpoint${CHECKPOINT_NUMBER}_max_tokens_per_call${MAX_TOKENS_PER_CALL}_thinking_budget${THINKING_BUDGET}"
 mkdir -p "${OUTPUT_DIR}"
-DIR_TO_CHECK="/home/rishabhtiwari/adaptive_reasoning/experiments/03_evaluation/short_runs/${MODEL_NAME_OR_PATH}_checkpoint${CHECKPOINT_NUMBER}_max_tokens_per_call${MAX_TOKENS_PER_CALL}_thinking_budget${THINKING_BUDGET}/${DATA_NAME}/test_qwen25-math-cot_-1_seed${SEED}_t${TEMPERATURE}_top_k${TOP_K}_s0_e-1_qwen25-math-cot_metrics.json"
+DIR_TO_CHECK="/home/rishabhtiwari/adaptive_reasoning/experiments/03_evaluation/without_system_prompt/${MODEL_NAME_OR_PATH}_checkpoint${CHECKPOINT_NUMBER}_max_tokens_per_call${MAX_TOKENS_PER_CALL}_thinking_budget${THINKING_BUDGET}/${DATA_NAME}/test_qwen25-math-cot_-1_seed${SEED}_t${TEMPERATURE}_top_k${TOP_K}_s0_e-1_qwen25-math-cot_metrics.json"
 if [ -f "${DIR_TO_CHECK}" ]; then
     echo "File ${DIR_TO_CHECK} already exists. Skipping execution."
     exit 0
 fi
 
 SPLIT="test"
-PROMPT_TYPE="qwen25-math-cot"
+PROMPT_TYPE="qwen25-math-cot-en"
 # PROMPT_TYPE="ling"
 NUM_TEST_SAMPLE=-1
 

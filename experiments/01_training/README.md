@@ -106,4 +106,5 @@ k=4 1631112
 2111685: large batch size 3 epochhs k = 8
 2111879: 3 epcohs k=[4,8,16]
 
-
+2196030: instruct k=8
+2196031: instruct k=[4,8,16]
